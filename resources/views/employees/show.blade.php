@@ -87,7 +87,7 @@
             </div>
         </div>
         @if ($employee->can_submit_requests)
-            <div class="grid md:grid-cols-2 md:gap-6">
+            <div class="grid md:grid-cols-4 md:gap-6">
                 <div class="relative z-0 mb-6 w-full group">
                     <input type="number" name="nb_of_days"
                         class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
@@ -97,6 +97,26 @@
                         {{ __('Number of Days Off') }}
                     </label>
                 </div>
+                @if (now()->isBefore($expireDate))
+                    <div class="relative z-0 mb-6 w-full group">
+                        <input type="number" name="prev_leaves"
+                            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            disabled value="{{ $employee->prev_leaves }}" />
+                        <label for="prev_leaves"
+                            class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
+                            {{ __('Previous Year') }}
+                        </label>
+                    </div>
+                    <div class="relative z-0 mb-6 w-full group">
+                        <input type="number" name="current_year"
+                            class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                            disabled value="{{ $employee->nb_of_days - $employee->prev_leaves }}" />
+                        <label for="current_year"
+                            class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
+                            {{ __('Current Year') }}
+                        </label>
+                    </div>
+                @endif
                 <div class="relative z-0 mb-6 w-full group">
                     <input type="number" name="confessionnels"
                         class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
@@ -109,10 +129,10 @@
             </div>
             <div class="relative z-0 mb-6 w-full group">
                 <input type="number" name="overtime_minutes"
-                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                       disabled value="{{ $employee->overtime_minutes }}" />
+                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                    disabled value="{{ $employee->overtime_minutes }}" />
                 <label for="overtime_minutes"
-                       class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
+                    class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
                     {{ __('Overtime Minutes') }}
                 </label>
             </div>
@@ -152,8 +172,12 @@
             <thead class="text-s blue-color uppercase bg-gray-50">
                 <tr class="border-b">
                     <th scope="col" class="text-center py-3 px-2"></th>
+                    @if (now()->isBefore($expireDate))
+                        <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Previous Year') }}</th>
+                        <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Current Year') }}</th>
+                    @endif
                     <th scope="col" class="text-center py-3 px-2">
-                        {{ __('Remaining') }}
+                        {{ __('Total') }} {{ __('Remaining') }}
                     </th>
                     <th scope="col" class="text-center py-3 px-2">
                         {{ __('Pending') }}
@@ -168,6 +192,14 @@
                     <th scope="col" class="border-r-2 text-center py-3 px-2 blue-color">
                         {{ __('Leave Days') }}
                     </th>
+                    @if (now()->isBefore($expireDate))
+                        <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                            {{ $employee->prev_leaves }}
+                        </td>
+                        <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                            {{ $employee->nb_of_days - $employee->prev_leaves }}
+                        </td>
+                    @endif
                     <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                         {{ $employee->nb_of_days }}
                     </td>
@@ -182,6 +214,9 @@
                     <th scope="col" class="border-r-2 text-center py-3 px-2 blue-color">
                         {{ __('Confessionnel Days') }}
                     </th>
+                    @if (now()->isBefore($expireDate))
+                        <td></td><td></td>
+                    @endif
                     <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                         {{ $employee->confessionnels }}
                     </td>
@@ -294,39 +329,36 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="{{ $employee->can_submit_requests ? '' : 'hidden' }}" id="off-days-container--{{$employee->id}}">
+                        <div class="{{ $employee->can_submit_requests ? '' : 'hidden' }}"
+                            id="off-days-container--{{ $employee->id }}">
                             <div class="grid md:grid-cols-2 md:gap-6">
                                 <div class="relative z-0 mb-4 w-full group">
                                     <input type="number" name="nb_of_days"
-                                           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                           value="{{$employee->nb_of_days}}"
-                                           step="0.25" required/>
+                                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                        value="{{ $employee->nb_of_days }}" step="0.25" required />
                                     <label for="nb_of_days"
-                                           class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
-                                        {{__("Number of Days Off")}}
+                                        class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
+                                        {{ __('Number of Days Off') }}
                                     </label>
                                 </div>
                                 <div class="relative z-0 mb-4 w-full group">
                                     <input type="number" name="confessionnels"
-                                           class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                           value="{{$employee->confessionnels}}"
-                                           step="0.25" required/>
+                                        class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                        value="{{ $employee->confessionnels }}" step="0.25" required />
                                     <label for="nb_of_days"
-                                           class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
-                                        {{__("Confessionnel Days")}}
+                                        class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
+                                        {{ __('Confessionnel Days') }}
                                     </label>
                                 </div>
                             </div>
                             <div class="relative z-0 mb-4 w-full group">
                                 <input type="number" name="overtime_minutes"
-                                       class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                                       placeholder=""
-                                       value="{{$employee->overtime_minutes}}"
-                                       required/>
+                                    class="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                                    placeholder="" value="{{ $employee->overtime_minutes }}" required />
                                 <label for="overtime_minutes"
-                                       class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">{{__("Overtime Minutes")}}</label>
+                                    class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">{{ __('Overtime Minutes') }}</label>
                                 @error('overtime_minutes')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -377,7 +409,7 @@
                                     <option value="" disabled>{{ __('Choose New Supervisor') }}</option>
                                     @if (count($employee->department->employees))
                                         @foreach ($employee->department->employees as $department_employee)
-                                            @unless($department_employee->id == $employee->id)
+                                            @unless ($department_employee->id == $employee->id)
                                                 <option value={{ $department_employee->id }}>
                                                     {{ $department_employee->first_name }}
                                                     {{ $department_employee->last_name }}</option>
@@ -392,8 +424,10 @@
                             <div class="relative z-0 mb-6 w-full group">
                                 <p class="mb-2 text-sm font-medium blue-color">{{ __('Submit Requests') }}</p>
                                 <div class="mt-2 flex flex-row">
-                                    <input type="checkbox" name="can_submit_requests" id="can-submit-requests--{{$employee->id}}"
-                                        {{ $employee->can_submit_requests ? 'checked' : '' }} onchange="toggleOffDaysContainer(this)">
+                                    <input type="checkbox" name="can_submit_requests"
+                                        id="can-submit-requests--{{ $employee->id }}"
+                                        {{ $employee->can_submit_requests ? 'checked' : '' }}
+                                        onchange="toggleOffDaysContainer(this)">
                                 </div>
                                 @error('can_submit_requests')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -413,36 +447,43 @@
                         </div>
 
                         <div class="relative z-0 mb-6 w-full group">
-                            <p class="mb-2 text-sm font-medium blue-color">{{__("Weekdays off")}}</p>
+                            <p class="mb-2 text-sm font-medium blue-color">{{ __('Weekdays off') }}</p>
                             <div class="weekday-selector">
                                 <div class="weekday-checkboxes">
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-mon" name="weekdays_off[]" value=1 {{ in_array(1, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-mon">{{__("Mon")}}</label>
+                                        <input type="checkbox" id="weekday-mon" name="weekdays_off[]" value=1
+                                            {{ in_array(1, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-mon">{{ __('Mon') }}</label>
                                     </div>
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-tue" name="weekdays_off[]" value=2 {{ in_array(2, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-tue">{{__("Tue")}}</label>
+                                        <input type="checkbox" id="weekday-tue" name="weekdays_off[]" value=2
+                                            {{ in_array(2, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-tue">{{ __('Tue') }}</label>
                                     </div>
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-wed" name="weekdays_off[]" value=3 {{ in_array(3, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-wed">{{__("Wed")}}</label>
+                                        <input type="checkbox" id="weekday-wed" name="weekdays_off[]" value=3
+                                            {{ in_array(3, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-wed">{{ __('Wed') }}</label>
                                     </div>
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-thu" name="weekdays_off[]" value=4 {{ in_array(4, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-thu">{{__("Thu")}}</label>
+                                        <input type="checkbox" id="weekday-thu" name="weekdays_off[]" value=4
+                                            {{ in_array(4, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-thu">{{ __('Thu') }}</label>
                                     </div>
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-fri" name="weekdays_off[]" value=5 {{ in_array(5, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-fri">{{__("Fri")}}</label>
+                                        <input type="checkbox" id="weekday-fri" name="weekdays_off[]" value=5
+                                            {{ in_array(5, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-fri">{{ __('Fri') }}</label>
                                     </div>
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-sat" name="weekdays_off[]" value=6 {{ in_array(6, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-sat">{{__("Sat")}}</label>
+                                        <input type="checkbox" id="weekday-sat" name="weekdays_off[]" value=6
+                                            {{ in_array(6, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-sat">{{ __('Sat') }}</label>
                                     </div>
                                     <div class="weekday-container text-gray-900 text-sm">
-                                        <input type="checkbox" id="weekday-sun" name="weekdays_off[]" value=7 {{ in_array(7, $employee->weekdays_off) ? 'checked' : ''}}>
-                                        <label for="weekday-sun">{{__("Sun")}}</label>
+                                        <input type="checkbox" id="weekday-sun" name="weekdays_off[]" value=7
+                                            {{ in_array(7, $employee->weekdays_off) ? 'checked' : '' }}>
+                                        <label for="weekday-sun">{{ __('Sun') }}</label>
                                     </div>
                                 </div>
                             </div>
@@ -461,7 +502,8 @@
                                             <path
                                                 d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4-4-4 4h3v3h2v-3z" />
                                         </svg>
-                                        <span class="text-xs text-white leading-normal">{{ __('Choose File') }}</span>
+                                        <span
+                                            class="text-xs text-white leading-normal">{{ __('Choose File') }}</span>
                                         <input class="hidden" type="file" name="profile_photo"
                                             id="profile_image_input--{{ $employee->id }}"
                                             onchange="readUrl(this, {{ $employee->id }})"

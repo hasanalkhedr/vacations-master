@@ -5,8 +5,12 @@
                 <thead class="text-s uppercase bg-gray-50 blue-color">
                     <tr class="border-b">
                         <th scope="col" class="text-center py-3 px-2"></th>
+                        @if (now()->isBefore($expireDate))
+                            <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Previous Year') }}</th>
+                            <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Current Year') }}</th>
+                        @endif
                         <th scope="col" class="text-center py-3 px-2">
-                            {{ __('Remaining') }}
+                           {{__('Total')}} {{ __('Remaining') }}
                         </th>
                         <th scope="col" class="text-center py-3 px-2">
                             {{ __('Pending') }}
@@ -21,6 +25,14 @@
                         <th scope="col" class="border-r-2 text-center py-3 px-2 blue-color">
                             {{ __('Leave Days') }}
                         </th>
+                        @if (now()->isBefore($expireDate))
+                            <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                                {{ $employee->prev_leaves }}
+                            </td>
+                            <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                                {{ $employee->nb_of_days - $employee->prev_leaves }}
+                            </td>
+                        @endif
                         <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                             {{ $employee->nb_of_days }}
                         </td>
@@ -35,7 +47,11 @@
                         <th scope="col" class="border-r-2 text-center py-3 px-2 blue-color">
                             {{ __('Confessionnel Days') }}
                         </th>
-                        <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                        @if (now()->isBefore($expireDate))
+                        <td></td><td></td>
+                        @endif
+                        <td
+                            class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                             {{ $employee->confessionnels }}
                         </td>
                         <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">

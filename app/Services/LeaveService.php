@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\LeaveConfig;
 use DateTime;
 use App\Helpers\Helper;
 use App\Jobs\LeaveJobs\SendLeaveRequestAcceptedEmailJob;
@@ -16,6 +17,7 @@ use App\Models\Employee;
 use App\Models\Leave;
 use App\Models\LeaveType;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Carbon;
 use Spatie\Permission\Models\Role;
 
 class LeaveService
@@ -153,6 +155,11 @@ class LeaveService
                 $employee->confessionnels = $employee->confessionnels - $nb_of_days_off_confessionnels;
             }
             $employee->nb_of_days = $employee->nb_of_days - $nb_of_days_off;
+
+            $expireDate = Carbon::create(null, LeaveConfig::find('expire_month')->value, LeaveConfig::find('expire_day')->value);
+            if (now()->isBefore($expireDate) && $employee->prev_leaves > 0) {
+                $employee->prev_leaves = $employee->prev_leaves < $nb_of_days_off ? 0 : $employee->prev_leaves - $nb_of_days_off;
+            }
         }
 
         $employee->save();
@@ -419,6 +426,11 @@ class LeaveService
             $employee->confessionnels = $employee->confessionnels + $nb_of_days_off_confessionnels;
         }
         $employee->nb_of_days = $employee->nb_of_days + $nb_of_days_off;
+
+        $expireDate = Carbon::create(null, LeaveConfig::find('expire_month')->value, LeaveConfig::find('expire_day')->value);
+        if (now()->isBefore($expireDate)) {
+            $employee->prev_leaves = $employee->prev_leaves + $nb_of_days_off;
+        }
         $employee->save();
     }
 
@@ -429,5 +441,27 @@ class LeaveService
         $minutes = $days * self::DAY_TO_MINUTES;
         $employee->overtime_minutes += $minutes;
         $employee->save();
+    }
+
+    public function newYearLeaves()
+    {
+        foreach (Employee::all() as $employee) {
+            if ($employee->can_submit_requests) {
+                $employee->prev_leaves = $employee->nb_of_days;
+                $employee->nb_of_days += 30;
+                $employee->save();
+            }
+        }
+    }
+
+    public function expirePrevLeaves()
+    {
+        foreach (Employee::all() as $employee) {
+            if ($employee->can_submit_requests) {
+                $employee->nb_of_days -= $employee->prev_leaves;
+                $employee->prev_leaves = 0;
+                $employee->save();
+            }
+        }
     }
 }

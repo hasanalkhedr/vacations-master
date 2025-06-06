@@ -8,6 +8,7 @@ use App\Http\Requests\LeaveRequests\StoreLeaveRequest;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Leave;
+use App\Models\LeaveConfig;
 use App\Models\LeaveDuration;
 use App\Models\LeaveType;
 use App\Services\EmployeeService;
@@ -88,7 +89,8 @@ class LeaveController extends Controller
                 'confessionnel_accepted_days' => $confessionnel_accepted_days,
                 'overtimeTotalTime' => $overtimeTotalTime,
                 'overtimeDays' => $overtimeDays,
-                'showConfessionnelButtons' => $showConfessionnelButtons
+                'showConfessionnelButtons' => $showConfessionnelButtons,
+                'expireDate' => Carbon::create(null, LeaveConfig::find('expire_month')->value, LeaveConfig::find('expire_day')->value)
             ]);
         } else {
             return back();
@@ -140,11 +142,11 @@ class LeaveController extends Controller
             $leave->processing_officer_role = $role->id;
         }
 
-       /* $recoveryLeave = LeaveType::where('name', 'recovery')->first();
+        /* $recoveryLeave = LeaveType::where('name', 'recovery')->first();
 
-        if ($leave->leave_type_id == $recoveryLeave->id) {
-            $leave_service->subtractOvertimeMinutes($leave);
-        }*/
+         if ($leave->leave_type_id == $recoveryLeave->id) {
+             $leave_service->subtractOvertimeMinutes($leave);
+         }*/
 
         $leave->save();
         $leave_service->sendEmailToInvolvedEmployees($leave, $processing_officers, $leave->substitute_employee);
@@ -342,9 +344,11 @@ class LeaveController extends Controller
             $employeeIds = $employees->pluck('id')->toArray();
 
             // Fetch leaves for all employees excluding rejected leaves
-            $leaves = Leave::with(['employee' => function ($query) {
-                $query->withTrashed();
-            }])
+            $leaves = Leave::with([
+                'employee' => function ($query) {
+                    $query->withTrashed();
+                }
+            ])
                 ->whereIn('employee_id', $employeeIds)
                 ->where('leave_status', '!=', self::REJECTED_STATUS)
                 ->whereDate('from', '<=', $end_of_month)
@@ -367,9 +371,11 @@ class LeaveController extends Controller
             $employeeIds = $employees->pluck('id')->toArray();
 
             // Fetch leaves for the employees in the selected department, excluding rejected leaves
-            $leaves = Leave::with(['employee' => function ($query) {
-                $query->withTrashed();
-            }])
+            $leaves = Leave::with([
+                'employee' => function ($query) {
+                    $query->withTrashed();
+                }
+            ])
                 ->whereIn('employee_id', $employeeIds)
                 ->where('leave_status', '!=', self::REJECTED_STATUS)
                 ->whereDate('from', '<=', $end_of_month)
@@ -432,12 +438,12 @@ class LeaveController extends Controller
 
         // Return the view with the necessary data
         return view('leaves.calendar', [
-            'month_name'           => $month_name,
-            'year'                 => $year,
-            'dates'                => $dates,
-            'employees'            => $employees,
-            'leaveId_dates_pairs'  => $leaveId_dates_pairs,
-            'holidays'             => $holidays,
+            'month_name' => $month_name,
+            'year' => $year,
+            'dates' => $dates,
+            'employees' => $employees,
+            'leaveId_dates_pairs' => $leaveId_dates_pairs,
+            'holidays' => $holidays,
         ]);
     }
 
@@ -482,6 +488,7 @@ class LeaveController extends Controller
             return view('leaves.create-report', [
                 'employees' => $employees,
                 'leaveTypes' => $leaveTypes,
+                'expireDate' => Carbon::create(null, LeaveConfig::find('expire_month')->value, LeaveConfig::find('expire_day')->value)
             ]);
         } else {
             return back();
@@ -503,7 +510,63 @@ class LeaveController extends Controller
         return view('leaves.view-report', [
             'leaves' => $leaves,
             'employee' => $employee,
-            'data' => $data
+            'data' => $data,
+            'expireDate' => Carbon::create(null, LeaveConfig::find('expire_month')->value, LeaveConfig::find('expire_day')->value)
         ]);
+    }
+
+    public function changeStartDate(Request $request)
+    {
+        $validated = $request->validate([
+            'start_month' => 'required|integer|between:1,12',
+            'start_day' => [
+                'required',
+                'integer',
+                'between:1,31',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Check if the day exists for the selected month
+                    if (!checkdate($request->start_month, $value, 2000)) { // Using leap year
+                        $fail(__('The selected day is invalid for the selected month.'));
+                    }
+                },
+            ],
+        ]);
+
+        $start_day = LeaveConfig::find('start_day');
+        $start_month = LeaveConfig::find('start_month');
+
+        $start_day->value = $validated['start_day'];
+        $start_month->value = $validated['start_month'];
+
+        $start_day->save();
+        $start_month->save();
+        return back();
+    }
+    public function changeExpireDate(Request $request)
+    {
+       $validated = $request->validate([
+            'expire_month' => 'required|integer|between:1,12',
+            'expire_day' => [
+                'required',
+                'integer',
+                'between:1,31',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Check if the day exists for the selected month
+                    if (!checkdate($request->expire_month, $value, 2000)) { // Using leap year
+                        $fail(__('The selected day is invalid for the selected month.'));
+                    }
+                },
+            ],
+        ]);
+
+        $expire_day = LeaveConfig::find('expire_day');
+        $expire_month = LeaveConfig::find('expire_month');
+
+        $expire_day->value = $validated['expire_day'];
+        $expire_month->value = $validated['expire_month'];
+
+        $expire_day->save();
+        $expire_month->save();
+        return back();
     }
 }
