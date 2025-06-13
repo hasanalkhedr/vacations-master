@@ -94,7 +94,7 @@
                         disabled value="{{ $employee->nb_of_days }}" />
                     <label for="nb_of_days"
                         class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
-                        {{ __('Number of Days Off') }}
+                        {{ __('Number of Days Off') }} actuels
                     </label>
                 </div>
                 @if (now()->isBefore($expireDate))
@@ -104,7 +104,7 @@
                             disabled value="{{ $employee->prev_leaves }}" />
                         <label for="prev_leaves"
                             class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
-                            {{ __('Previous Year') }}
+                            solde {{ __('Previous Year') }} valable
                         </label>
                     </div>
                     <div class="relative z-0 mb-6 w-full group">
@@ -113,7 +113,7 @@
                             disabled value="{{ $employee->nb_of_days - $employee->prev_leaves }}" />
                         <label for="current_year"
                             class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
-                            {{ __('Current Year') }}
+                            solde {{ __('Current Year') }}
                         </label>
                     </div>
                 @endif
@@ -123,7 +123,7 @@
                         disabled value="{{ $employee->confessionnels }}" />
                     <label for="confessionnels"
                         class="peer-focus:font-medium absolute text-sm duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 blue-color">
-                        {{ __('Confessionnels') }}
+                        solde {{ __('Confessionnels') }}
                     </label>
                 </div>
             </div>
@@ -171,16 +171,16 @@
         <table class="mt-4 w-full text-sm text-left text-gray-500 border">
             <thead class="text-s blue-color uppercase bg-gray-50">
                 <tr class="border-b">
-                    <th scope="col" class="text-center py-3 px-2"></th>
+                    <th scope="col" class="text-center py-3 px-2 text-lg border border-r">Solde</th>
                     @if (now()->isBefore($expireDate))
-                        <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Previous Year') }}</th>
-                        <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Current Year') }}</th>
+                        <th scope="col" class="w-1/12 text-center text-xs py-3 px-2">{{ __('Previous Year') }}</th>
+                        <th scope="col" class="w-1/12 text-center text-xs py-3 px-2">{{ __('Current Year') }}</th>
                     @endif
                     <th scope="col" class="text-center py-3 px-2">
-                        {{ __('Total') }} {{ __('Remaining') }}
+                        {{ __('Total') }} {{ __('Remaining') }} Actuels
                     </th>
-                    <th scope="col" class="text-center py-3 px-2">
-                        {{ __('Pending') }}
+                    <th scope="col" class="text-center py-3 px-2 border border-r">
+                        Demandes {{ __('Pending') }}
                     </th>
                     <th scope="col" class="text-center py-3 px-2">
                         {{ __('Accepted') }}
@@ -203,7 +203,7 @@
                     <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                         {{ $employee->nb_of_days }}
                     </td>
-                    <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                    <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap border border-r">
                         {{ $normal_pending_days }}
                     </td>
                     <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
@@ -220,7 +220,7 @@
                     <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                         {{ $employee->confessionnels }}
                     </td>
-                    <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                    <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap border border-r">
                         {{ $confessionnel_pending_days }}
                     </td>
                     <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">

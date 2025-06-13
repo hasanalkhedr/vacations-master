@@ -4,16 +4,16 @@
             <table class="mt-4 w-full text-sm text-left text-gray-500 border">
                 <thead class="text-s uppercase bg-gray-50 blue-color">
                     <tr class="border-b">
-                        <th scope="col" class="text-center py-3 px-2"></th>
+                        <th scope="col" class="text-center text-lg py-3 px-2 border border-r">solde</th>
                         @if (now()->isBefore($expireDate))
-                            <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Previous Year') }}</th>
-                            <th scope="col" class="w-1/12 text-center text-sm py-3 px-2">{{ __('Current Year') }}</th>
+                            <th scope="col" class="w-1/12 text-center text-xs py-3 px-2">{{ __('Previous Year') }}</th>
+                            <th scope="col" class="w-1/12 text-center text-xs py-3 px-2">{{ __('Current Year') }}</th>
                         @endif
                         <th scope="col" class="text-center py-3 px-2">
-                           {{__('Total')}} {{ __('Remaining') }}
+                           {{__('Total')}} {{ __('Remaining') }} Actuels
                         </th>
-                        <th scope="col" class="text-center py-3 px-2">
-                            {{ __('Pending') }}
+                        <th scope="col" class="text-center py-3 px-2 border border-r">
+                            Demandes {{ __('Pending') }}
                         </th>
                         <th scope="col" class="text-center py-3 px-2">
                             {{ __('Accepted') }}
@@ -36,7 +36,7 @@
                         <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                             {{ $employee->nb_of_days }}
                         </td>
-                        <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                        <td class="text-center border border-r border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                             {{ $normal_pending_days }}
                         </td>
                         <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
@@ -54,7 +54,7 @@
                             class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                             {{ $employee->confessionnels }}
                         </td>
-                        <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
+                        <td class="text-center border border-r border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
                             {{ $confessionnel_pending_days }}
                         </td>
                         <td class="text-center border-b py-4 px-2 font-bold text-gray-900 whitespace-nowrap">
